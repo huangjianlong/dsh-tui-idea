@@ -8,12 +8,8 @@
       <b>0.1.0</b>：首个版本 —— 终端会话、侧边栏会话历史（zstd 帧链解析）、恢复/归档/重命名/删除、@文件引用插入。
     ]]></change-notes>
     <description><![CDATA[
-    在真实的 IntelliJ 集成终端中运行 dsh-TUI（DeepSeek Harness），体验与 Claude Code 官方插件几乎一致：<br/>
-    • 一键启动新会话 / 恢复上次会话 / 多并发会话<br/>
-    • 侧边栏会话历史（按项目分组、最近使用排序），双击恢复<br/>
-    • 会话归档 / 重命名 / 删除 / 复制会话 ID<br/>
-    • 编辑器右键插入 @文件 / @选区 引用<br/>
-    需要 Node.js 环境安装 dsh 与 dsh-tui（npm i -g @deepseek-ai/dsh @deepseek-harness-tui/dsh-tui）。
+    Run dsh-TUI (DeepSeek Harness) in the real IntelliJ IDEA integrated terminal with a Claude Code-style experience: one-click new sessions, resume last or any historical session, sidebar session history grouped by project, archive, rename, delete, and @file mentions inserted from the editor. Requires Node.js and the open-source dsh / dsh-tui CLI (unofficial companion plugin). The plugin ships a one-click environment setup that detects missing pieces (pnpm, dsh CLI, dsh-tui profile, global skin packages) and installs them automatically, so it works on a fresh machine. IntelliJ IDEA 2026.1+ (build 261+), built on the Reworked Terminal API.<br/><br/>
+    中文说明：在集成终端中运行 dsh-TUI（DeepSeek Harness），支持一键新建/恢复会话、侧边栏会话历史（按项目分组）、归档/重命名/删除、编辑器插入 @文件引用；内置环境体检与一键自动配置（自动安装 pnpm、dsh CLI、dsh-tui profile 与全局皮肤包，可自愈 pnpm≥11 构建审批墙），需 Node.js 与开源 dsh/dsh-tui CLI（非官方伴生插件）。
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

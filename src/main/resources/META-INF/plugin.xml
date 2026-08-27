@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <id>com.dshui.idea</id>
+    <name>DeepSeek Harness (dsh-tui)</name>
+    <vendor>huangjl</vendor>
+    <change-notes><![CDATA[
+      <b>0.2.1</b>：环境体检与一键配置（pnpm/dsh/profile/皮肤自动安装，自愈 pnpm≥11 构建审批墙）；启动命令解析链与 dsh --profile 回退；NODE_ENV=production 注入；恢复上次会话改用 last-used.json。<br/>
+      <b>0.1.0</b>：首个版本 —— 终端会话、侧边栏会话历史（zstd 帧链解析）、恢复/归档/重命名/删除、@文件引用插入。
+    ]]></change-notes>
+    <description><![CDATA[
+    在真实的 IntelliJ 集成终端中运行 dsh-TUI（DeepSeek Harness），体验与 Claude Code 官方插件几乎一致：<br/>
+    • 一键启动新会话 / 恢复上次会话 / 多并发会话<br/>
+    • 侧边栏会话历史（按项目分组、最近使用排序），双击恢复<br/>
+    • 会话归档 / 重命名 / 删除 / 复制会话 ID<br/>
+    • 编辑器右键插入 @文件 / @选区 引用<br/>
+    需要 Node.js 环境安装 dsh 与 dsh-tui（npm i -g @deepseek-ai/dsh @deepseek-harness-tui/dsh-tui）。
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="DeepSeek"
+                    anchor="left"
+                    icon="com.dshui.idea.DshIcons.ToolWindow"
+                    factoryClass="com.dshui.idea.ui.DshToolWindowFactory"
+                    secondaryIcon="com.dshui.idea.DshIcons.ToolWindow"
+                    canCloseContents="false"/>
+        <notificationGroup id="dsh-tui" displayType="BALLOON"/>
+        <postStartupActivity implementation="com.dshui.idea.action.DshStartupActivity"/>
+        <applicationConfigurable parentId="tools"
+                                 id="dsh-tui.settings"
+                                 displayName="DeepSeek Harness (dsh-tui)"
+                                 instance="com.dshui.idea.settings.DshSettingsConfigurable"/>
+    </extensions>
+
+    <actions>
+        <group id="dsh-tui.MainMenu" text="DeepSeek" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <action id="dsh-tui.StartSession" class="com.dshui.idea.action.DshStartSessionAction"
+                    text="启动新会话" description="在新终端中启动 dsh-tui 会话"/>
+            <action id="dsh-tui.ResumeLast" class="com.dshui.idea.action.DshResumeLastAction"
+                    text="恢复上次会话" description="在终端中恢复上次的 dsh-tui 会话"/>
+            <action id="dsh-tui.Setup" class="com.dshui.idea.action.DshSetupAction"
+                    text="一键配置环境" description="检测并自动安装 dsh/dsh-tui 运行所需环境"/>
+        </group>
+        <group id="dsh-tui.EditorGroup" text="DeepSeek" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <action id="dsh-tui.InsertAtMention" class="com.dshui.idea.action.DshInsertAtMentionAction"
+                    text="插入 @文件引用" description="把当前文件/选中代码以 @引用 形式插入 dsh-tui 输入框"/>
+        </group>
+    </actions>
+</idea-plugin>

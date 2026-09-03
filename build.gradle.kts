@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.dshui"
-version = "0.2.1"
+version = "0.3.1"
 
 repositories {
     mavenCentral()
@@ -50,4 +50,11 @@ intellijPlatform {
 
 tasks.test {
     useJUnit()
+}
+
+// 冒烟辅助：-PsmokeProject=<路径> 让 runIde 直接打开该项目（跳过欢迎屏）
+tasks.withType<org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask>().configureEach {
+    if (project.hasProperty("smokeProject")) {
+        args(listOf(project.property("smokeProject").toString()))
+    }
 }

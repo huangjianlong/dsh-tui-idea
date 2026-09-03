@@ -32,8 +32,8 @@ private fun notifyInfo(project: Project?, message: String) {
         .notify(project)
 }
 
-/** 启动新会话：每次点击开一个新终端+会话，已有会话各自继续（对齐 Claude Code）。 */
-class DshStartSessionAction : AnAction("新建会话", "在集成终端中启动新的 dsh-tui 会话", AllIcons.Actions.AddFile) {
+/** 启动新会话：每次点击在 DeepSeek 工具窗开一个新终端标签+会话，已有会话各自继续（对齐 Claude Code）。 */
+class DshStartSessionAction : AnAction("新建会话", "在 DeepSeek 工具窗中启动新的 dsh-tui 会话", AllIcons.Actions.AddFile) {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
     override fun actionPerformed(e: AnActionEvent) {
         controller(e.project)?.launcher?.startNewSession()
@@ -41,7 +41,7 @@ class DshStartSessionAction : AnAction("新建会话", "在集成终端中启动
 }
 
 /** 恢复上次会话：--resume 读取 ~/.dsh-tui/resume.txt。 */
-class DshResumeLastAction : AnAction("恢复上次会话", "在集成终端中恢复上次的 dsh-tui 会话", AllIcons.Actions.Restart) {
+class DshResumeLastAction : AnAction("恢复上次会话", "在 DeepSeek 工具窗中恢复上次的 dsh-tui 会话", AllIcons.Actions.Restart) {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
     override fun actionPerformed(e: AnActionEvent) {
         controller(e.project)?.launcher?.resumeLastSession()
@@ -141,8 +141,8 @@ class DshCopySessionIdAction : AnAction("复制会话 ID", "复制会话 ID 到�
     }
 }
 
-/** 双击/菜单「恢复会话」：注入 DSH_TUI_RESUME_SESSION 启动新终端恢复该会话。 */
-class DshResumeSessionAction : AnAction("恢复会话", "在新终端中恢复此会话", AllIcons.Actions.Execute) {
+/** 双击/菜单「恢复会话」：注入 DSH_TUI_RESUME_SESSION 在 DeepSeek 工具窗开新标签恢复该会话。 */
+class DshResumeSessionAction : AnAction("恢复会话", "在 DeepSeek 工具窗中恢复此会话", AllIcons.Actions.Execute) {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
     override fun update(e: AnActionEvent) {
         e.presentation.isEnabled = e.getData(SELECTED_SESSION) != null

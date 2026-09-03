@@ -5,13 +5,18 @@ import com.dshui.idea.settings.DshSettings
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.terminal.frontend.toolwindow.TerminalToolWindowTab
 import com.intellij.terminal.frontend.toolwindow.TerminalToolWindowTabsManager
+import com.intellij.ui.content.Content
 import org.jetbrains.plugins.terminal.startup.TerminalProcessType
 
 /**
- * dsh-tui 终端启动器：在集成终端里以独立标签页运行 dsh-tui。
+ * dsh-tui 终端启动器：在右侧 DeepSeek 工具窗内以可关闭标签页运行 dsh-tui，
+ * 不占用底部集成终端。终端标签经 2026.1 Reworked Terminal API 创建后放进
+ * DeepSeek 工具窗自己的 ContentManager（必须 requestFocus(false)——
+ * TabsManager 在 requestFocus 时固定激活 Terminal 工具窗，与标签宿主无关）。
  * 启动命令解析链：设置命令（路径形式）→ PATH 上的 dsh-tui 启动器 →
  * dsh --profile dsh-tui（官方启动器的等价回退，免手工拷贝 dsh-tui.cmd）。
  */
@@ -51,16 +56,32 @@ class DshTerminalLauncher(private val project: Project) {
             }
         }
 
-        TerminalToolWindowTabsManager.getInstance(project)
-            .createTabBuilder()
-            .tabName(TAB_NAME)
-            .shellCommand(plan.shellCommand)
-            .envVariables(plan.env)
-            .workingDirectory(project.basePath ?: System.getProperty("user.home"))
-            .processType(TerminalProcessType.NON_SHELL)
-            .requestFocus(true)
-            .createTab()
-        activateTerminalToolWindow()
+        val toolWindow = deepSeekToolWindow()
+        if (toolWindow == null) {
+            notify("DeepSeek 工具窗不可用，无法启动会话。", NotificationType.ERROR)
+            return
+        }
+        val tabsManager = TerminalToolWindowTabsManager.getInstance(project)
+        // launching 标记：createTab 会同步触发 tabAdded，守卫需借此放行自己的标签
+        DshTerminalTabs.launching = true
+        val tab = try {
+            tabsManager.createTabBuilder()
+                .tabName(TAB_NAME)
+                .shellCommand(plan.shellCommand)
+                .envVariables(plan.env)
+                .workingDirectory(project.basePath ?: System.getProperty("user.home"))
+                .processType(TerminalProcessType.NON_SHELL)
+                .contentManager(toolWindow.contentManager)
+                .requestFocus(false)
+                .createTab()
+        } finally {
+            DshTerminalTabs.launching = false
+        }
+        DshTerminalTabs.register(tab.content)
+        tab.content.isCloseable = true
+        // dsh-tui 首帧前盖鲸鱼喷水过场，遮住空终端的闪烁光标
+        DshWhaleLoadingPanel.attach(tab)
+        activateDeepSeekToolWindow(tab.content)
     }
 
     private fun notify(message: String, type: NotificationType) {
@@ -70,8 +91,14 @@ class DshTerminalLauncher(private val project: Project) {
             .notify(project)
     }
 
-    private fun activateTerminalToolWindow() {
-        ToolWindowManager.getInstance(project).getToolWindow("Terminal")?.activate(null)
+    private fun deepSeekToolWindow(): ToolWindow? =
+        ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID)
+
+    /** 激活 DeepSeek 工具窗并选中指定标签（终端会话标签聚焦入口）。 */
+    private fun activateDeepSeekToolWindow(selected: Content? = null) {
+        val toolWindow = deepSeekToolWindow() ?: return
+        toolWindow.activate(null)
+        selected?.let { toolWindow.contentManager.setSelectedContent(it) }
     }
 
     private fun isWindows(): Boolean =
@@ -91,7 +118,7 @@ class DshTerminalLauncher(private val project: Project) {
      */
     fun sendInput(text: String): Boolean {
         val tab = findTab() ?: return false
-        activateTerminalToolWindow()
+        activateDeepSeekToolWindow(tab.content)
         tab.view.sendText(text)
         return true
     }
@@ -100,15 +127,14 @@ class DshTerminalLauncher(private val project: Project) {
     fun focusOrStart() {
         val tab = findTab()
         if (tab != null) {
-            activateTerminalToolWindow()
-            ToolWindowManager.getInstance(project).getToolWindow("Terminal")
-                ?.contentManager?.setSelectedContent(tab.content)
+            activateDeepSeekToolWindow(tab.content)
         } else {
             startNewSession()
         }
     }
 
     companion object {
+        const val TOOL_WINDOW_ID = "DeepSeek"
         const val TAB_NAME = "DeepSeek"
         const val RESUME_ENV = "DSH_TUI_RESUME_SESSION"
         const val RESUME_ENV_CC = "DSH_CC_RESUME_SESSION"

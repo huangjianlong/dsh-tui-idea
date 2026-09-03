@@ -4,12 +4,13 @@
     <name>DeepSeek Harness (dsh-tui)</name>
     <vendor>huangjl</vendor>
     <change-notes><![CDATA[
+      <b>0.3.1</b>：TUI 内嵌到右侧 DeepSeek 工具窗（会话历史 + 每个运行中会话一个可关闭标签），不再占用底部集成终端；IDEA 启动不再恢复/弹开任何 dsh 终端，点开插件才加载；新会话启动期间显示静态鲸鱼喷水过场（预渲染 PNG 贴图 + 动态省略号），dsh-tui 就绪后自动淡出；全新简笔鲸鱼图标（工具窗条灰色描边随主题反色）。<br/>
       <b>0.2.1</b>：环境体检与一键配置（pnpm/dsh/profile/皮肤自动安装，自愈 pnpm≥11 构建审批墙）；启动命令解析链与 dsh --profile 回退；NODE_ENV=production 注入；恢复上次会话改用 last-used.json。<br/>
       <b>0.1.0</b>：首个版本 —— 终端会话、侧边栏会话历史（zstd 帧链解析）、恢复/归档/重命名/删除、@文件引用插入。
     ]]></change-notes>
     <description><![CDATA[
-    Run dsh-TUI (DeepSeek Harness) in the real IntelliJ IDEA integrated terminal with a Claude Code-style experience: one-click new sessions, resume last or any historical session, sidebar session history grouped by project, archive, rename, delete, and @file mentions inserted from the editor. Requires Node.js and the open-source dsh / dsh-tui CLI (unofficial companion plugin). The plugin ships a one-click environment setup that detects missing pieces (pnpm, dsh CLI, dsh-tui profile, global skin packages) and installs them automatically, so it works on a fresh machine. IntelliJ IDEA 2026.1+ (build 261+), built on the Reworked Terminal API.<br/><br/>
-    中文说明：在集成终端中运行 dsh-TUI（DeepSeek Harness），支持一键新建/恢复会话、侧边栏会话历史（按项目分组）、归档/重命名/删除、编辑器插入 @文件引用；内置环境体检与一键自动配置（自动安装 pnpm、dsh CLI、dsh-tui profile 与全局皮肤包，可自愈 pnpm≥11 构建审批墙），需 Node.js 与开源 dsh/dsh-tui CLI（非官方伴生插件）。
+    Run dsh-TUI (DeepSeek Harness) embedded in the right-side DeepSeek tool window with a Claude Code-style experience: the session history list and one closable tab per running session live in the same panel — no bottom terminal clutter, and nothing loads until you open the plugin. One-click new sessions, resume last or any historical session, history grouped by project, archive, rename, delete, and @file mentions inserted from the editor. Requires Node.js and the open-source dsh / dsh-tui CLI (unofficial companion plugin). The plugin ships a one-click environment setup that detects missing pieces (pnpm, dsh CLI, dsh-tui profile, global skin packages) and installs them automatically, so it works on a fresh machine. IntelliJ IDEA 2026.1+ (build 261+), built on the Reworked Terminal API.<br/><br/>
+    中文说明：dsh-TUI（DeepSeek Harness）内嵌在右侧 DeepSeek 工具窗运行：会话历史与每个运行中会话（可关闭标签）同面板共存，不再占用底部集成终端；点开插件才加载，IDEA 启动时不会自动弹出。支持一键新建/恢复会话、按项目分组的会话历史、归档/重命名/删除、编辑器插入 @文件引用；内置环境体检与一键自动配置（自动安装 pnpm、dsh CLI、dsh-tui profile 与全局皮肤包，可自愈 pnpm≥11 构建审批墙），需 Node.js 与开源 dsh/dsh-tui CLI（非官方伴生插件）。
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -17,11 +18,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="DeepSeek"
-                    anchor="left"
+                    anchor="right"
                     icon="com.dshui.idea.DshIcons.ToolWindow"
                     factoryClass="com.dshui.idea.ui.DshToolWindowFactory"
                     secondaryIcon="com.dshui.idea.DshIcons.ToolWindow"
-                    canCloseContents="false"/>
+                    canCloseContents="true"/>
         <notificationGroup id="dsh-tui" displayType="BALLOON"/>
         <postStartupActivity implementation="com.dshui.idea.action.DshStartupActivity"/>
         <applicationConfigurable parentId="tools"
@@ -34,9 +35,9 @@
         <group id="dsh-tui.MainMenu" text="DeepSeek" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
             <action id="dsh-tui.StartSession" class="com.dshui.idea.action.DshStartSessionAction"
-                    text="启动新会话" description="在新终端中启动 dsh-tui 会话"/>
+                    text="启动新会话" description="在 DeepSeek 工具窗中启动 dsh-tui 会话"/>
             <action id="dsh-tui.ResumeLast" class="com.dshui.idea.action.DshResumeLastAction"
-                    text="恢复上次会话" description="在终端中恢复上次的 dsh-tui 会话"/>
+                    text="恢复上次会话" description="在 DeepSeek 工具窗中恢复上次的 dsh-tui 会话"/>
             <action id="dsh-tui.Setup" class="com.dshui.idea.action.DshSetupAction"
                     text="一键配置环境" description="检测并自动安装 dsh/dsh-tui 运行所需环境"/>
         </group>

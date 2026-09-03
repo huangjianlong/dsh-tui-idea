@@ -1,17 +1,19 @@
 # dsh-tui-idea
 
-在真实的 IntelliJ IDEA 集成终端中运行 **dsh-TUI**（DeepSeek Harness），体验与
-Claude Code 官方插件几乎一致。本插件是
-[dsh-tui-vscode](https://github.com/baobaolaodie/dsh-tui-vscode) 的 IntelliJ 版，
-行为语义与其严格对齐。
+在 IntelliJ IDEA 右侧 **DeepSeek 工具窗**内嵌运行 **dsh-TUI**（DeepSeek Harness），
+体验与 Claude Code 官方插件几乎一致：会话历史与运行中的终端同面板共存，
+不占用底部集成终端；点开插件才加载，IDEA 启动时不会自动弹出任何会话。
+本插件是 [dsh-tui-vscode](https://github.com/baobaolaodie/dsh-tui-vscode) 的
+IntelliJ 版，行为语义与其严格对齐。
 
 ## 功能
 
-- **一键会话**：工具窗/菜单启动新会话、恢复上次会话（`--resume`）、多并发会话
-  （每次点击一个新终端标签页，各自独立运行）。
-- **会话历史侧边栏**：读取 `~/.dsh/sessions/<group>/<id>/session.jsonl.zstd`
+- **一键会话**：工具窗/菜单启动新会话、恢复上次会话、多并发会话
+  （每次点击在 DeepSeek 工具窗新增一个可关闭终端标签，关闭即结束该会话进程）。
+- **会话历史**：第一个标签「会话」读取
+  `~/.dsh/sessions/<group>/<id>/session.jsonl.zstd`
   （zstd 帧链，只做头部 64KB + 尾部 128KB 有界读取），按项目分组、最近使用排序
-  （`~/.dsh-tui/last-used.json`），双击即在新终端恢复该会话。
+  （`~/.dsh-tui/last-used.json`），双击即开新标签恢复该会话。
 - **会话管理**：归档/恢复（dsh 工作区域归档集 `storages/workspace.json`，与
   dsh web 会话列表同一来源）、重命名（向日志追加一帧 `session/title` 事件，
   读取侧最后标题生效）、永久删除（带 sessions 根路径包含校验）、复制会话 ID。
@@ -52,12 +54,15 @@ gradlew runIde             # 沙箱 IDE 中试运行
 ## 安装
 
 IDEA → Settings → Plugins → ⚙ → Install Plugin from Disk → 选择
-`build/distributions/dsh-tui-idea-0.1.0.zip` → 重启。
+`build/distributions/dsh-tui-idea-<ver>.zip` → 重启。
+（0.2.x 升级到 0.3.x：若工具窗仍停在左侧，把 stripe 图标拖到右侧一次即可。）
 
 ## 使用
 
-- 左侧工具窗 **DeepSeek**：会话列表（仅显示当前项目工作区的会话）。
-  工具栏：新建会话 / 恢复上次 / 刷新 / 管理已归档。
+- 右侧工具窗 **DeepSeek**（首次点击才创建内容，IDEA 启动时不加载）：
+  - 「会话」标签：当前项目工作区的会话列表，工具栏含
+    新建会话 / 恢复上次 / 刷新 / 管理已归档。
+  - 每个运行中的 dsh-tui 会话一个独立终端标签，点 × 关闭标签即结束该会话进程。
 - 会话条目：双击恢复；右键：恢复 / 归档 / 重命名 / 删除 / 复制会话 ID。
 - 编辑器内选中代码 → 右键 → **DeepSeek → 插入 @文件引用**。
 - 设置：Settings → Tools → **DeepSeek Harness (dsh-tui)**
@@ -73,8 +78,11 @@ IDEA → Settings → Plugins → ⚙ → Install Plugin from Disk → 选择
 - 终端集成使用 2026.1 重构终端（Reworked Terminal）正式 API：
   `TerminalToolWindowTabsManager.createTabBuilder()` 以
   `shellCommand + envVariables + workingDirectory` 直接以 dsh-tui 为进程创建
-  标签页（无「等 shell 就绪再投递」竞态）；@引用通过 `TerminalView.sendText`
-  键入（不执行）。
+  标签页（无「等 shell 就绪再投递」竞态），并通过 `contentManager(...)`
+  把标签放进 DeepSeek 工具窗自己的 ContentManager（`requestFocus(false)`，
+  避免激活底部 Terminal 窗口）；@引用通过 `TerminalView.sendText`
+  键入（不执行）。启动守卫会在 IDEA 启动/终端标签恢复时关掉非本插件创建的
+  同名标签，保证只有用户点开插件才会拉起会话进程。
 - 插件自身只做本地文件解析与终端编排，不发起任何 HTTP 请求
   （DeepSeek API 调用由 dsh CLI 完成）。
 

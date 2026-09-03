@@ -314,7 +314,11 @@ class DshSessionsPanel(private val project: Project) : SimpleToolWindowPanel(tru
     }
 }
 
-/** 工具窗工厂：创建会话列表面板并启动监听。 */
+/**
+ * 工具窗工厂：创建会话列表标签（不可关闭）。运行中的 dsh-tui 会话由
+ * [com.dshui.idea.terminal.DshTerminalLauncher] 以可关闭的内嵌终端标签
+ * 追加到同一 ContentManager。
+ */
 class DshToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun init(toolWindow: ToolWindow) {
@@ -326,7 +330,8 @@ class DshToolWindowFactory : ToolWindowFactory, DumbAware {
         val controller = project.service<DshSessionsController>()
         val panel = DshSessionsPanel(project)
         controller.panel = panel
-        val content = ContentFactory.getInstance().createContent(panel, "", false)
+        val content = ContentFactory.getInstance().createContent(panel, "会话", false)
+        content.isCloseable = false
         content.setDisposer { if (controller.panel === panel) controller.panel = null }
         toolWindow.contentManager.addContent(content)
         controller.start()

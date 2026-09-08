@@ -48,6 +48,14 @@ class DshResumeLastAction : AnAction("恢复上次会话", "在 DeepSeek 工具�
     }
 }
 
+/** 全局快捷键（默认 Alt+D）：聚焦运行中的会话；没有则新建（对齐 VSCode 版 focus 命令）。 */
+class DshFocusOrStartAction : AnAction("聚焦/新建会话", "聚焦运行中的 DeepSeek 会话；没有则新建（Alt+D）", AllIcons.Actions.Find) {
+    override fun getActionUpdateThread() = ActionUpdateThread.BGT
+    override fun actionPerformed(e: AnActionEvent) {
+        controller(e.project)?.launcher?.focusOrStart()
+    }
+}
+
 class DshRefreshAction : AnAction("刷新", "刷新会话列表", AllIcons.Actions.Refresh) {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
     override fun actionPerformed(e: AnActionEvent) {

@@ -59,6 +59,11 @@ class DshSettingsConfigurable : SearchableConfigurable {
                     .bindSelected(settings.state::autoInsertMention)
                     .comment("选中代码变化时自动把 @绝对路径 L起-止 键入运行中的 dsh-tui 输入框（300ms 防抖；默认关闭以避免抢占输入框/刷屏）。")
             }
+            row {
+                checkBox("会话跑完时通知我")
+                    .bindSelected(settings.state::notifyOnTurnEnd)
+                    .comment("dsh 会话跑完一轮等待输入时发 IDE 通知（点「查看」直接跳到对应会话标签）；正在查看该会话时不打扰。")
+            }
         }
     }
 
@@ -69,7 +74,8 @@ class DshSettingsConfigurable : SearchableConfigurable {
             injectEditor != other.injectEditor ||
             editorCommand != other.editorCommand ||
             dshHome != other.dshHome ||
-            autoInsertMention != other.autoInsertMention
+            autoInsertMention != other.autoInsertMention ||
+            notifyOnTurnEnd != other.notifyOnTurnEnd
 
     override fun isModified(): Boolean =
         if (::snapshot.isInitialized) settings.state.differsFrom(snapshot) else false
@@ -89,5 +95,6 @@ class DshSettingsConfigurable : SearchableConfigurable {
         s.editorCommand = snapshot.editorCommand
         s.dshHome = snapshot.dshHome
         s.autoInsertMention = snapshot.autoInsertMention
+        s.notifyOnTurnEnd = snapshot.notifyOnTurnEnd
     }
 }

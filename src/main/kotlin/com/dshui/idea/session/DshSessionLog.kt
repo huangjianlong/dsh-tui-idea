@@ -357,4 +357,10 @@ object DshSessionLog {
         val head = readSessionHead(path, group) ?: return null
         return attachTailTitle(head.rec, head.whole)
     }
+
+    /** 尾部窗口（128KB）内的原始事件（最新追加段），供增量扫描（如 turn/end）。 */
+    fun tailEvents(path: Path): List<JsonObject> {
+        val window = readWindow(path, TAIL_WINDOW_BYTES, tail = true) ?: return emptyList()
+        return decodeTail(window)
+    }
 }

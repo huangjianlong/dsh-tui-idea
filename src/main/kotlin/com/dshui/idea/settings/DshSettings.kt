@@ -28,6 +28,8 @@ class DshSettings : PersistentStateComponent<DshSettings.PluginState> {
         var dshHome: String = "",
         /** 选区变化时自动插入 @引用（实验性，默认关闭）。 */
         var autoInsertMention: Boolean = false,
+        /** dsh 会话跑完一轮（turn/end completed）时发 IDE 通知。 */
+        var notifyOnTurnEnd: Boolean = true,
     )
 
     private var state = PluginState()

@@ -8,6 +8,7 @@ import com.dshui.idea.action.DshRefreshAction
 import com.dshui.idea.action.DshRenameSessionAction
 import com.dshui.idea.action.DshResumeLastAction
 import com.dshui.idea.action.DshResumeSessionAction
+import com.dshui.idea.action.DshSessionChangesAction
 import com.dshui.idea.action.DshSetupAction
 import com.dshui.idea.action.DshStartSessionAction
 import com.dshui.idea.session.DshSessionRecord
@@ -104,6 +105,7 @@ class DshSessionsPanel(private val project: Project) : SimpleToolWindowPanel(tru
                 "dsh-tui-session-popup",
                 DefaultActionGroup(
                     DshResumeSessionAction(),
+                    DshSessionChangesAction(),
                     DshArchiveSessionAction(),
                     DshRenameSessionAction(),
                     DshDeleteSessionAction(),
@@ -172,6 +174,7 @@ class DshSessionsPanel(private val project: Project) : SimpleToolWindowPanel(tru
     }
 
     private fun rebuild(records: List<DshSessionRecord>, report: DshEnvironmentCheck.Report?) {
+        controller.launcher.syncTitles(records)
         if (report != null && !report.ready) {
             setContent(buildSetupPanel(report))
         } else {

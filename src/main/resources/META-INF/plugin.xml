@@ -4,6 +4,7 @@
     <name>DeepSeek Harness (dsh-tui)</name>
     <vendor>huangjl</vendor>
     <change-notes><![CDATA[
+      <b>0.4.0</b>：会话跑完等待输入时 IDE 通知（点「查看」直达会话标签，可在设置关闭）；终端标签自动命名为会话标题（多会话可分辨）；项目树右键「插入 @引用」支持文件/目录多选；会话右键「查看改动」列出该会话编辑/新建过的文件（双击打开）；全局快捷键 Alt+D 聚焦/新建会话。<br/>
       <b>0.3.1</b>：TUI 内嵌到右侧 DeepSeek 工具窗（会话历史 + 每个运行中会话一个可关闭标签），不再占用底部集成终端；IDEA 启动不再恢复/弹开任何 dsh 终端，点开插件才加载；新会话启动期间显示静态鲸鱼喷水过场（预渲染 PNG 贴图 + 动态省略号），dsh-tui 就绪后自动淡出；全新简笔鲸鱼图标（工具窗条灰色描边随主题反色）。<br/>
       <b>0.2.1</b>：环境体检与一键配置（pnpm/dsh/profile/皮肤自动安装，自愈 pnpm≥11 构建审批墙）；启动命令解析链与 dsh --profile 回退；NODE_ENV=production 注入；恢复上次会话改用 last-used.json。<br/>
       <b>0.1.0</b>：首个版本 —— 终端会话、侧边栏会话历史（zstd 帧链解析）、恢复/归档/重命名/删除、@文件引用插入。
@@ -38,9 +39,17 @@
                     text="启动新会话" description="在 DeepSeek 工具窗中启动 dsh-tui 会话"/>
             <action id="dsh-tui.ResumeLast" class="com.dshui.idea.action.DshResumeLastAction"
                     text="恢复上次会话" description="在 DeepSeek 工具窗中恢复上次的 dsh-tui 会话"/>
+            <action id="dsh-tui.FocusOrStart" class="com.dshui.idea.action.DshFocusOrStartAction"
+                    text="聚焦/新建会话" description="聚焦运行中的 DeepSeek 会话；没有则新建">
+                <keyboard-shortcut first-keystroke="alt D" keymap="$default"/>
+            </action>
             <action id="dsh-tui.Setup" class="com.dshui.idea.action.DshSetupAction"
                     text="一键配置环境" description="检测并自动安装 dsh/dsh-tui 运行所需环境"/>
         </group>
+        <action id="dsh-tui.MentionFromView" class="com.dshui.idea.action.DshMentionFromViewAction"
+                text="插入 @引用" description="把选中的文件/目录以 @引用 形式插入 dsh-tui 输入框">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
         <group id="dsh-tui.EditorGroup" text="DeepSeek" popup="true">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <action id="dsh-tui.InsertAtMention" class="com.dshui.idea.action.DshInsertAtMentionAction"

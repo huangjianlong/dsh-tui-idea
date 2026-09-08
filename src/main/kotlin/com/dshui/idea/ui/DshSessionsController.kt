@@ -39,6 +39,7 @@ class DshSessionsController(private val project: Project) : Disposable {
 
     fun refresh() {
         panel?.reloadAsync()
+        launcher.onSessionsChanged()
     }
 
     /**
